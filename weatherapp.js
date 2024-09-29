@@ -26,7 +26,6 @@ let d = new Date();
 const getday = () => {
   let day = d.getDay();
 
-
   switch (day) {
     case 0:
       day = "Sunday";
@@ -61,37 +60,91 @@ let searchbutton = document.querySelector(".search");
 let cityTemp = document.querySelector(".currentTemp");
 let apiKey = "d7c60554e39t3a97f6ad15bdc4a5oaf2";
 let timeBox = document.querySelector(".time");
-let Currhumidity=document.querySelector(".humidity");
-let CurrwindSpeed=document.querySelector(".windspeed");
+let Currhumidity = document.querySelector(".humidity");
+let CurrwindSpeed = document.querySelector(".windspeed");
 // currentCity.innerHTML=city;
 
 async function fetchweather(city) {
   let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}`;
-try{
-    let response=await fetch(apiUrl);
-    let data=await response.json();
+  try {
+    let response = await fetch(apiUrl);
+    let data = await response.json();
     console.log(data);
-      let currentTemperature = data.temperature.current;
-      let weatherIconUrl = data.condition.icon_url;
-      let humidity=data.temperature.humidity;
-      let windspeed=data.wind.speed;
-      console.log("Humidity:",humidity);
-      console.log("Wind Speed: ", windspeed);
-      console.log(
-        `Current temperature in ${city}:${weatherIconUrl} ${currentTemperature}°C`
-      );
-      cityTemp.innerHTML = `<img src="" id="emojisrc"> <span class="timevalue">${currentTemperature}°C</span>`;
-      document.querySelector("#emojisrc").src = weatherIconUrl;
-      Currhumidity.innerHTML=`Humidity:<strong>${humidity}%,</strong>`
-      CurrwindSpeed.innerHTML=`Wind:<strong>${windspeed}km/h</strong>`
-  }catch(error) {
-      console.error("Error fetching weather data:", error);
-    };
+    let currentTemperature = data.temperature.current;
+    let weatherIconUrl = data.condition.icon_url;
+    let humidity = data.temperature.humidity;
+    let windspeed = data.wind.speed;
+    console.log("Humidity:", humidity);
+    console.log("Wind Speed: ", windspeed);
+    console.log(
+      `Current temperature in ${city}:${weatherIconUrl} ${currentTemperature}°C`
+    );
+    cityTemp.innerHTML = `<img src="" id="emojisrc"> <span class="timevalue">${currentTemperature}°C</span>`;
+    document.querySelector("#emojisrc").src = weatherIconUrl;
+    Currhumidity.innerHTML = `Humidity:<strong>${humidity}%,</strong>`;
+    CurrwindSpeed.innerHTML = `Wind:<strong>${windspeed}km/h</strong>`;
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+  }
 }
+
+async function forecast(city) {
+  let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}`;
+  try {
+    let response = await fetch(apiUrl);
+    let data = await response.json();
+    console.log(data);
+    console.log(data.daily);
+    let forecastdata = data.daily;
+    forecastdata.forEach((data) => {
+      let mintemp = data.temperature.minimum;
+      let maxtemp = data.temperature.maximum;
+      let weatherIconUrl = data.condition.icon_url;
+      console.log("Minimum Temp:", mintemp);
+      console.log("Maximum Temp:", maxtemp);
+
+      let forecastHTML = "";
+      let days = ["Mon","Tue", "Wed", "Thurs", "Fri", "Sat", "Sun"];
+      days.forEach((day) => {
+        forecastHTML += `<div class="day1">
+                    <div class="day">${day}</div>
+                    <div class="emoji"><img src="${weatherIconUrl}" alt="emoji"></div>
+                    <div class="temp">
+                        <span class="max"><strong>${maxtemp}°C</strong></span>
+                        <span class="min">${mintemp}°C</span>
+                    </div>
+                </div>`;
+        let forecastelement = document.querySelector(".tempinfo");
+        forecastelement.innerHTML = forecastHTML;
+      });
+    });
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+  }
+}
+
+function displayForecast() {
+  //   let forecastHTML="";
+  //   let days=["Tue","Wed","Thurs","Fri","Sat","Sun"]
+  //   days.forEach(day => {
+  //       forecastHTML+=`<div class="day1">
+  //                     <div class="day">${day}</div>
+  //                     <div class="emoji">🌧️</div>
+  //                     <div class="temp">
+  //                         <span class="max"><strong>29°</strong></span>
+  //                         <span class="min">18°</span>
+  //                     </div>
+  //                 </div>`
+  //   let forecastelement=document.querySelector(".tempinfo");
+  //   forecastelement.innerHTML=forecastHTML;
+  //  });
+}
+displayForecast();
 searchbutton.addEventListener("click", () => {
   let city = input.value;
   currentCity.innerHTML = city;
   fetchweather(city);
+  forecast(city);
   input.value = "";
 });
 setInterval(() => {
